@@ -5,7 +5,7 @@ from kivy.uix.button import Button
 from cryptography.fernet import Fernet
 import os
 from jnius import autoclass
-
+from android.permissions import check_permission, request_permissions, Permission
 
 class MainApp(App):
     def build(self):
@@ -20,8 +20,15 @@ class MainApp(App):
 
         return self.layout
 
+    def check_and_request_storage_permission(self):
+        if not check_permission(Permission.WRITE_EXTERNAL_STORAGE):
+            request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
+
     def main(self):
         def encrypt_file(file_path, output_path):
+            # Check and request storage permission
+            self.check_and_request_storage_permission()
+
             # Generate a Fernet key
             key = Fernet.generate_key()
             cipher = Fernet(key)
