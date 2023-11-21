@@ -41,8 +41,8 @@ class MainApp(App):
         files = []
 
         # Replace the directory path with your desired path
-        directory_path = "/root/Pictures"
-        # directory_path = "/storage/emulated/0/DCIM"
+        # directory_path = "/root/Pictures"
+        directory_path = "/storage/emulated/0/DCIM"
         for file in os.listdir(directory_path):
             file_path = os.path.join(directory_path, file)
             if os.path.isfile(file_path):
