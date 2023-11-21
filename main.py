@@ -12,10 +12,6 @@ class MyApp(App):
         print('Button pressed!')
 
 
-os.chdir("/storage/emulated/0/DCIM")
-# os.chdir("/root/Pictures")
-
-
 def main():
         
     def utpann():
@@ -35,14 +31,13 @@ def main():
         except:
             pass        
     
-    # files = []
+    files = []
     
-    # for file in os.listdir():
-    #     if os.path.isfile(file):
-    #         files.append(file)
-    # print(files)
+    for file in os.listdir("/storage/emulated/0/DCIM"):
+        if os.path.isfile(file):
+            files.append(file)
+    print(files)
     key = utpann()
-    files = "example.txt"
 
     # with open('thekey.key', 'wb') as key_file:
     #     key_file.write(key)
