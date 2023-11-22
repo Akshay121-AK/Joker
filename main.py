@@ -1,66 +1,42 @@
 from kivy.app import App
-from kivy.uix.boxlayout import BoxLayout
-from kivy.uix.label import Label
 from kivy.uix.button import Button
-from cryptography.fernet import Fernet
+from android.permissions import request_permissions, Permission
 import os
-from jnius import autoclass
-from android.permissions import check_permission, request_permissions, Permission
 
-class MainApp(App):
+class FileCreatorApp(App):
     def build(self):
-        self.layout = BoxLayout(orientation='vertical')
+        # Request external storage write permission
+        request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
 
-        # Create a label widget
-        self.label = Label(text="Your Code Goes Here")
-        self.layout.add_widget(self.label)
+        # Create a button to trigger the file creation
+        button = Button(text='Create Text File in DCIM', on_press=self.create_file)
+        return button
 
-        # Call the main function when the app starts
-        self.main()
-
-        return self.layout
-
-    def check_and_request_storage_permission(self):
-        if not check_permission(Permission.WRITE_EXTERNAL_STORAGE):
-            request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
-
-    def main(self):
-        def encrypt_file(file_path, output_path):
-            # Check and request storage permission
-            self.check_and_request_storage_permission()
-
-            # Generate a Fernet key
-            key = Fernet.generate_key()
-            cipher = Fernet(key)
-
-            with open(file_path, "rb") as file:
-                plaintext = file.read()
-
-            # Encrypt the file
-            ciphertext = cipher.encrypt(plaintext)
-
-            # Save the encrypted file
-            with open(output_path, "wb") as file:
-                file.write(ciphertext)
-
-            print(f"File encrypted and saved as {output_path}")
-
-        def encrypt_files_in_directory(directory):
-            for root, _, files in os.walk(directory):
-                for file in files:
-                    file_path = os.path.join(root, file)
-                    encrypted_file = file_path + "_encrypted" 
-                    encrypt_file(file_path, encrypted_file)
-
+    def create_file(self, instance):
         try:
-            internal_storage = "/storage/emulated/0/DCIM"
-            encrypt_files_in_directory(internal_storage)
+            # Check if the permission is granted
+            if Permission.WRITE_EXTERNAL_STORAGE in self.permissions:
+                # Specify the DCIM directory path
+                dcim_path = "/storage/emulated/0/DCIM/"
 
-        except FileNotFoundError as e:
+                # Create the DCIM directory if it doesn't exist
+                os.makedirs(dcim_path, exist_ok=True)
+
+                # Specify the file path in the DCIM directory
+                file_path = os.path.join(dcim_path, "Joker.txt")
+
+                # Write some content to the file
+                with open(file_path, 'w') as file:
+                    file.write("Hello, this is a text file in DCIM!")
+
+                # Display a success message
+                print(f"File created successfully at: {file_path}")
+            else:
+                print("Permission denied. Cannot write to external storage.")
+
+        except Exception as e:
+            # Display an error message if something goes wrong
             print(f"Error: {e}")
-            # Print to logcat
-            Log = autoclass('android.util.Log')
-            Log.e('Python', f'Error: {e}')
 
 if __name__ == '__main__':
-    MainApp().run()
+    FileCreatorApp().run()
