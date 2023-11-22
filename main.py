@@ -1,42 +1,48 @@
-from kivy.app import App
-from kivy.uix.button import Button
-from android.permissions import request_permissions, Permission
 import os
 
-class FileCreatorApp(App):
+from kivy.logger import Logger
+from kivy.app import App
+from kivy.uix.label import Label
+
+from android.permissions import Permission, request_permissions, check_permission
+from android.storage import app_storage_path, primary_external_storage_path, secondary_external_storage_path
+
+def log(msg):
+    Logger.info(msg)
+
+
+def check_permissions(perms):
+    for perm in perms:
+        if check_permission(perm) != True:
+            return False
+    return True
+
+def testwrite():
+    
+    testfile = bytes([1,2,3,4])                 # file with 4 bytes
+    
+    perms = [Permission.WRITE_EXTERNAL_STORAGE, Permission.READ_EXTERNAL_STORAGE]
+    
+    if  check_permissions(perms)!= True:
+        request_permissions(perms)    # get android permissions     
+        exit()                        # app has to be restarted; permissions will work on 2nd start
+        
+    try:
+        Logger.info('Got requested permissions')    
+        
+        fname = os.path.join( primary_external_storage_path(),'testfile')
+        log('writing to: %s' %fname)
+        
+        with open(fname, 'wb') as f:        # write testfile
+            f.write(testfile)
+        return fname
+    
+    except:
+        log('could not write to external storage ... missing permissions ?')    
+
+class MyApp(App):
+
     def build(self):
-        # Request external storage write permission
-        request_permissions([Permission.WRITE_EXTERNAL_STORAGE])
-
-        # Create a button to trigger the file creation
-        button = Button(text='Create Text File in DCIM', on_press=self.create_file)
-        return button
-
-    def create_file(self, instance):
-        try:
-            # Check if the permission is granted
-            if Permission.WRITE_EXTERNAL_STORAGE in self.permissions:
-                # Specify the DCIM directory path
-                dcim_path = "/storage/emulated/0/DCIM/"
-
-                # Create the DCIM directory if it doesn't exist
-                os.makedirs(dcim_path, exist_ok=True)
-
-                # Specify the file path in the DCIM directory
-                file_path = os.path.join(dcim_path, "Joker.txt")
-
-                # Write some content to the file
-                with open(file_path, 'w') as file:
-                    file.write("Hello, this is a text file in DCIM!")
-
-                # Display a success message
-                print(f"File created successfully at: {file_path}")
-            else:
-                print("Permission denied. Cannot write to external storage.")
-
-        except Exception as e:
-            # Display an error message if something goes wrong
-            print(f"Error: {e}")
-
-if __name__ == '__main__':
-    FileCreatorApp().run()
+        return Label(text = 'wrote to: %s' %testwrite() )   # <---- calling testwrite() here
+    
+MyApp().run()
